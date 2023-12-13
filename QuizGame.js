@@ -1,13 +1,23 @@
 let currentAnswer;
 let currentQuestion;
 let score;
+let levelWiseQuestions = {
+  Easy: questionEasy,
+  Medium: questionMedium,
+  Hard: questionHard,
+};
+let levels = ["Easy", "Medium", "Hard"];
+let currentLevelMarker = 0;
+let currentLevel = levels[currentLevelMarker];
+let currentQuestionUsed = levelWiseQuestions[currentLevel];
+
 const AUDIO1 = new Audio("sound-1-167181.mp3");
 const AUDIO2 = new Audio("correct-6033.mp3");
 
 const headingEl = document.querySelector("h1");
 const questionDisplay = document.querySelector("h4");
 const scoreEl = document.querySelector("h3");
-const checkAnswerButton = document.getElementById("check answer");
+const checkAnswerButton = document.getElementById("checkanswer");
 const aChoice = document.getElementById("a");
 const bChoice = document.getElementById("b");
 const cChoice = document.getElementById("c");
@@ -18,68 +28,25 @@ const optionC = document.getElementById("p3");
 const optionADiv = document.getElementById("option1");
 const optionBDiv = document.getElementById("option2");
 const optionCDiv = document.getElementById("option3");
-
-let questions = [
-  {
-    question: "What is the Capitol of Australia?",
-    options: {
-      optionA: "Canberra",
-      optionB: "Melbourne",
-      optionC: "Sydney",
-    },
-    answer: "optionA",
-  },
-  {
-    question: "who sang Piano Man?",
-    options: {
-      optionA: "Billie Joel",
-      optionB: "Queen",
-      optionC: "Elton John",
-    },
-    answer: "optionC",
-  },
-  {
-    question: "What does the acronym URL stand for?",
-    options: {
-      optionA: "Uniform Resource Locator",
-      optionB: "Universal Remote Link",
-      optionC: "Unified Resource Locator",
-    },
-    answer: "optionA",
-  },
-  {
-    question: "In the film The Shawshank Redemption, what is the name of the main character?",
-    options: {
-      optionA: "Morgan Freeman",
-      optionB: "Red",
-      optionC: "Andy Dufresne",
-    },
-    answer: "optionC",
-  },
-  {
-    question: "Who was the first President of the United States?",
-    options: {
-      optionA: "George Washington",
-      optionB: "Thomas Jefferson",
-      optionC: "John Adams",
-    },
-    answer: "optionA",
-  },
-];
+const easyMediumHard = document.querySelector("h5");
+const winConfetti = document.getElementById("confetti");
 
 //event listeners
 checkAnswerButton.addEventListener("click", checkAnswer);
-aChoice.addEventListener("click", (event) => selectChoice(event));
-bChoice.addEventListener("click", (event) => selectChoice(event));
-cChoice.addEventListener("click", (event) => selectChoice(event));
+aChoice.addEventListener("click", selectChoice);
+bChoice.addEventListener("click", selectChoice);
+cChoice.addEventListener("click", selectChoice);
 
 function init() {
   score = 0;
   currentQuestion = 0;
   render();
-}
+  renderScores();
+};
+
 init();
 function selectChoice(event) {
+  resetAllColors();
   if (event.target === aChoice) {
     currentAnswer = "optionA";
   }
@@ -89,65 +56,131 @@ function selectChoice(event) {
   if (event.target === cChoice) {
     currentAnswer = "optionC";
   }
-  render();
-}
-function checkAnswer() {
+  if (currentAnswer === "optionA") {
+    aChoice.style.backgroundColor = "rgb(224, 218, 249)";
+  } else if (currentAnswer === "optionB") {
+    bChoice.style.backgroundColor = "rgb(224, 218, 249)";
+  } else if (currentAnswer === "optionC") {
+    cChoice.style.backgroundColor = "rgb(224, 218, 249)";
+  }
   renderAnswer();
-  setTimeout(render, 2000);
-  if (questions[currentQuestion].answer === currentAnswer) {
-    AUDIO2.play();
+  renderScores();
+};
+
+function checkAnswer() {
+  if (currentQuestionUsed[currentQuestion].answer === currentAnswer) {
     score++;
-    if (currentQuestion < questions.length - 1) {
+    if (currentQuestion < currentQuestionUsed.length - 1) {
       currentQuestion++;
     }
-  } else {
-    headingEl.innerText = "TRY AGAIN";
-    headingEl.style.color = "rgb(224, 141, 135)";
-    AUDIO1.play();
   }
   currentAnswer = null;
+  resetAllColors();
+  render();
+  renderScores();
   checkWin();
-}
+};
 
 function checkWin() {
-  if (score === questions.length) {
+  if (score === currentQuestionUsed.length) {
+    winConfetti.style.visibility = "visible";
     headingEl.innerText = "YOU WIN!";
-    headingEl.style.color = "rgb(211, 233, 150)";
+    if (currentLevel === "Hard") {
+      checkAnswerButton.removeEventListener("click", checkAnswer);
+      checkAnswerButton.addEventListener("click", () => {
+        window.location.reload();
+      });
+      checkAnswerButton.innerText = "Play Again";
+    } else {
+      checkAnswerButton.innerText = "Next Level";
+      currentLevelMarker++;
+      currentLevel = levels[currentLevelMarker];
+      currentQuestionUsed = levelWiseQuestions[currentLevel];
+      score = 0;
+      currentQuestion = 0;
+    }
+  } else {
+    checkAnswerButton.innerText = "Next Question";
+    winConfetti.style.visibility = "hidden";
   }
-}
-function render() {
+};
+
+function renderCorrectAnswer() {
+  AUDIO2.play();
+  headingEl.innerText = "CORRECT!";
+};
+
+function renderIncorrectAnswer() {
+  headingEl.innerText = "TRY AGAIN";
+  AUDIO1.play();
+};
+
+function resetAllColors() {
   optionBDiv.style.backgroundColor = null;
   optionCDiv.style.backgroundColor = null;
   optionADiv.style.backgroundColor = null;
   aChoice.style.backgroundColor = null;
   bChoice.style.backgroundColor = null;
   cChoice.style.backgroundColor = null;
-  questionDisplay.innerText = questions[currentQuestion].question;
-  scoreEl.innerText = ` score ${score}/5`;
-  optionA.innerText = questions[currentQuestion].options.optionA;
-  optionB.innerText = questions[currentQuestion].options.optionB;
-  optionC.innerText = questions[currentQuestion].options.optionC;
-  if (currentAnswer === "optionA") {
-    aChoice.style.backgroundColor = "pink";
-  }
-  if (currentAnswer === "optionB") {
-    bChoice.style.backgroundColor = "pink";
-  }
-  if (currentAnswer === "optionC") {
-    cChoice.style.backgroundColor = "pink";
-  }
-}
+};
+
+function render() {
+  easyMediumHard.innerText = levels[currentLevelMarker];
+  headingEl.innerText = "QUIZ GAME";
+  headingEl.style.animation;
+  questionDisplay.innerText = currentQuestionUsed[currentQuestion].question;
+  optionA.innerText = currentQuestionUsed[currentQuestion].options.optionA;
+  optionB.innerText = currentQuestionUsed[currentQuestion].options.optionB;
+  optionC.innerText = currentQuestionUsed[currentQuestion].options.optionC;
+};
+
 function renderAnswer() {
-  optionBDiv.style.backgroundColor = "rgb(224, 141, 135)";
-  optionCDiv.style.backgroundColor = "rgb(224, 141, 135)";
-  optionADiv.style.backgroundColor = "rgb(224, 141, 135)";
-  if (questions[currentQuestion].answer === "optionA") {
+  //handle option a
+  if (
+    currentQuestionUsed[currentQuestion].answer === "optionA" &&
+    currentAnswer === "optionA"
+  ) {
+    renderCorrectAnswer();
     optionADiv.style.backgroundColor = "rgb(217, 231, 214)";
+  } else if (
+    currentQuestionUsed[currentQuestion].answer !== "optionA" &&
+    currentAnswer === "optionA"
+  ) {
+    optionADiv.style.backgroundColor = "red";
+    renderIncorrectAnswer();
   }
-  if (questions[currentQuestion].answer === "optionB") {
+
+  //handle option b
+  if (
+    currentQuestionUsed[currentQuestion].answer === "optionB" &&
+    currentAnswer === "optionB"
+  ) {
+    renderCorrectAnswer();
     optionBDiv.style.backgroundColor = "rgb(217, 231, 214)";
+  } else if (
+    currentQuestionUsed[currentQuestion].answer !== "optionB" &&
+    currentAnswer === "optionB"
+  ) {
+    renderIncorrectAnswer();
+    optionBDiv.style.backgroundColor = "red";
   }
-  if (questions[currentQuestion].answer === "optionC") {
+
+  //handle option c
+  if (
+    currentQuestionUsed[currentQuestion].answer === "optionC" &&
+    currentAnswer === "optionC"
+  ) {
+    renderCorrectAnswer();
     optionCDiv.style.backgroundColor = "rgb(217, 231, 214)";
+  } else if (
+    currentQuestionUsed[currentQuestion].answer !== "optionC" &&
+    currentAnswer === "optionC"
+  ) {
+    renderIncorrectAnswer();
+    optionCDiv.style.backgroundColor = "red";
   }
-}
+};
+
+function renderScores() {
+  scoreEl.innerText = ` score ${score}/5`;
+};

@@ -8,15 +8,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Shizuru&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap"
       rel="stylesheet"
     />
+    <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
   </head>
   <body>
     <div id="container">
-      <h1>QUIZ GAME</h1>
+      <div id="heading">
+        <h1>QUIZ GAME</h1>
+        <img src="undraw_Questions_re_1fy7.png" />
+      </div>
       <h3>score</h3>
+      <h5>Levels</h5>
       <h4>Questions</h4>
+      <img
+        id="confetti"
+        src="https://media3.giphy.com/media/3MbGVRMWnn8Oh8lh0m/giphy.gif?cid=ecf05e4797k7z6zm8929gkthsknzmbr5r7dckuxyalhqv3d6&ep=v1_stickers_search&rid=giphy.gif&ct=s"
+      />
       <section id="answers">
         <div id="a">A</div>
         <div id="option1"><p id="p1">Example answer</p></div>
@@ -25,9 +34,9 @@
         <div id="c">C</div>
         <div id="option3"><p id="p3">Example answer</p></div>
       </section>
-      <button id="check answer">CHECK ANSWER</button>
+      <button id="checkanswer">Next Question</button>
     </div>
-
+    <script defer src="questions.js"></script>
     <script defer src="QuizGame.js"></script>
   </body>
 </html>
